@@ -1,0 +1,32 @@
+# Environment Configuration
+.env
+.env.local
+.env.*.local
+
+# JWT Secret (CRITICAL - Never commit!)
+jwt.txt
+
+# Docker Volumes Data
+geth-data/
+node-data/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary Files
+*.tmp
+.cache/
