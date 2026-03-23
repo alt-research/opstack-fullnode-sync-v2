@@ -1,20 +1,18 @@
-version: '3.8'
-
 services:
-  geth:
-    image: ${GETH_IMAGE}
-    container_name: opstack-geth
+  reth:
+    image: ${RETH_IMAGE:-us-docker.pkg.dev/oplabs-tools-artifacts/images/op-reth:v1.11.0}
+    container_name: opstack-reth
     restart: unless-stopped
     ports:
-      - "${GETH_HTTP_PORT:-8545}:${GETH_HTTP_PORT:-8545}"       # HTTP RPC
-      - "${GETH_WS_PORT:-8546}:${GETH_WS_PORT:-8546}"           # WebSocket RPC
-      - "${GETH_AUTHRPC_PORT:-8551}:${GETH_AUTHRPC_PORT:-8551}" # Engine API (AuthRPC)
-      - "${GETH_METRICS_PORT:-6060}:${GETH_METRICS_PORT:-6060}" # Metrics
-      - "${GETH_P2P_PORT:-30303}:${GETH_P2P_PORT:-30303}"       # P2P
+      - "8545:8545"   # Reth HTTP RPC
+      - "8546:8546"   # Reth WebSocket RPC
+      - "8551:8551"   # Reth Engine API / Auth RPC
+      - "6060:6060"   # Reth metrics
+      - "30303:30303" # Reth P2P
     volumes:
-      - geth-data:${GETH_DATADIR:-/data}
-      - ./jwt.txt:${GETH_DATADIR:-/data}/jwt.txt:ro
-      - ./scripts/geth-entrypoint.sh:/entrypoint.sh:ro
+      - reth-data:${RETH_DATADIR:-/data}
+      - ./jwt.txt:${RETH_DATADIR:-/data}/jwt.txt:ro
+      - ./scripts/reth-entrypoint.sh:/entrypoint.sh:ro
     env_file:
       - .env
     entrypoint: /bin/sh
@@ -22,21 +20,21 @@ services:
     networks:
       - opstack-network
     healthcheck:
-      test: ["CMD", "sh", "-c", "nc -z localhost $${GETH_HTTP_PORT:-8545}"]
+      test: ["CMD", "sh", "-c", "nc -z localhost 8545"]
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
 
   node:
-    image: ${NODE_IMAGE}
+    image: ${NODE_IMAGE:-us-docker.pkg.dev/oplabs-tools-artifacts/images/op-node:v1.16.7}
     container_name: opstack-node
     restart: unless-stopped
     ports:
-      - "${OP_NODE_P2P_TCP_PORT:-9003}:${OP_NODE_P2P_TCP_PORT:-9003}"     # P2P TCP
-      - "${OP_NODE_P2P_UDP_PORT:-9003}:${OP_NODE_P2P_UDP_PORT:-9003}/udp" # P2P UDP
-      - "${OP_NODE_METRICS_PORT:-7300}:${OP_NODE_METRICS_PORT:-7300}"     # Metrics
-      - "${OP_NODE_RPC_PORT:-9545}:${OP_NODE_RPC_PORT:-9545}"             # RPC
+      - "9003:9003"       # Op-node P2P TCP
+      - "9003:9003/udp"   # Op-node P2P UDP
+      - "7300:7300"       # Op-node metrics
+      - "9545:9545"       # Op-node RPC
     volumes:
       - node-data:${OP_NODE_DATADIR:-/data}
       - ./jwt.txt:${OP_NODE_DATADIR:-/data}/jwt.txt:ro
@@ -46,19 +44,19 @@ services:
     entrypoint: /bin/sh
     command: /entrypoint.sh
     depends_on:
-      geth:
+      reth:
         condition: service_healthy
     networks:
       - opstack-network
     healthcheck:
-      test: ["CMD", "sh", "-c", "nc -z localhost $${OP_NODE_RPC_PORT:-9545}"]
+      test: ["CMD", "sh", "-c", "nc -z localhost 9545"]
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 60s
 
 volumes:
-  geth-data:
+  reth-data:
     driver: local
   node-data:
     driver: local
