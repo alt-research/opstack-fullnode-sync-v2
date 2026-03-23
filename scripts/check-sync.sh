@@ -3,10 +3,10 @@
 # ======================================
 # OP Stack Node Sync Status Checker
 # ======================================
-# This script checks the sync status of both geth and op-node
+# This script checks the sync status of the reth execution layer and op-node
 # Usage: ./scripts/check-sync.sh
-
-set -e
+#
+set -eu
 
 # Color codes for output
 RED='\033[0;31m'
@@ -15,9 +15,10 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Default ports (can be overridden by environment variables)
-GETH_HTTP_PORT=${GETH_HTTP_PORT:-8545}
-OP_NODE_RPC_PORT=${OP_NODE_RPC_PORT:-9545}
+# Ports are fixed by docker-compose.yml.
+# Override manually only if you changed the compose port mapping.
+exec_http_port=${EXEC_HTTP_PORT:-8545}
+op_node_rpc_port=${OP_NODE_RPC_PORT:-9545}
 
 echo "======================================="
 echo "OP Stack Node Sync Status Check"
@@ -25,37 +26,37 @@ echo "======================================="
 echo ""
 
 # ======================================
-# Check Geth Sync Status
+# Check Execution Layer Sync Status
 # ======================================
-echo -e "${BLUE}[Geth]${NC} Checking sync status on http://localhost:${GETH_HTTP_PORT}..."
+echo -e "${BLUE}[Execution Layer]${NC} Checking sync status on http://localhost:${exec_http_port}..."
 
-GETH_SYNC=$(curl -s -X POST http://localhost:${GETH_HTTP_PORT} \
+EXEC_SYNC=$(curl -s -X POST http://localhost:${exec_http_port} \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}' 2>/dev/null)
 
 if [ $? -ne 0 ]; then
-  echo -e "${RED}✗ Error: Cannot connect to Geth RPC${NC}"
-  echo "  Make sure Geth is running and accessible on port ${GETH_HTTP_PORT}"
+  echo -e "${RED}✗ Error: Cannot connect to execution layer RPC${NC}"
+  echo "  Make sure reth is running and accessible on port ${exec_http_port}"
   exit 1
 fi
 
 # Parse sync status
-GETH_SYNCING=$(echo $GETH_SYNC | jq -r '.result')
+EXEC_SYNCING=$(echo "$EXEC_SYNC" | jq -r '.result')
 
-if [ "$GETH_SYNCING" = "false" ]; then
-  echo -e "${GREEN}✓ Geth is fully synced${NC}"
+if [ "$EXEC_SYNCING" = "false" ]; then
+  echo -e "${GREEN}✓ Execution layer is fully synced${NC}"
 
   # Get current block number
-  GETH_BLOCK=$(curl -s -X POST http://localhost:${GETH_HTTP_PORT} \
+  EXEC_BLOCK=$(curl -s -X POST http://localhost:${exec_http_port} \
     -H "Content-Type: application/json" \
     -d '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' | jq -r '.result')
-  GETH_BLOCK_DEC=$((${GETH_BLOCK}))
-  echo "  Current block: ${GETH_BLOCK_DEC} (${GETH_BLOCK})"
+  EXEC_BLOCK_DEC=$((${EXEC_BLOCK}))
+  echo "  Current block: ${EXEC_BLOCK_DEC} (${EXEC_BLOCK})"
 else
-  echo -e "${YELLOW}⟳ Geth is syncing...${NC}"
+  echo -e "${YELLOW}⟳ Execution layer is syncing...${NC}"
 
-  CURRENT_BLOCK=$(echo $GETH_SYNC | jq -r '.result.currentBlock' | xargs printf "%d")
-  HIGHEST_BLOCK=$(echo $GETH_SYNC | jq -r '.result.highestBlock' | xargs printf "%d")
+  CURRENT_BLOCK=$(echo "$EXEC_SYNC" | jq -r '.result.currentBlock' | xargs printf "%d")
+  HIGHEST_BLOCK=$(echo "$EXEC_SYNC" | jq -r '.result.highestBlock' | xargs printf "%d")
 
   if [ "$CURRENT_BLOCK" != "null" ] && [ "$HIGHEST_BLOCK" != "null" ]; then
     PROGRESS=$(echo "scale=2; ($CURRENT_BLOCK / $HIGHEST_BLOCK) * 100" | bc)
@@ -69,7 +70,7 @@ else
 fi
 
 # Get peer count
-PEER_COUNT=$(curl -s -X POST http://localhost:${GETH_HTTP_PORT} \
+PEER_COUNT=$(curl -s -X POST http://localhost:${exec_http_port} \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"net_peerCount","params":[],"id":1}' | jq -r '.result')
 PEER_COUNT_DEC=$((${PEER_COUNT}))
@@ -80,28 +81,28 @@ echo ""
 # ======================================
 # Check Op-Node Sync Status
 # ======================================
-echo -e "${BLUE}[Op-Node]${NC} Checking sync status on http://localhost:${OP_NODE_RPC_PORT}..."
+echo -e "${BLUE}[Op-Node]${NC} Checking sync status on http://localhost:${op_node_rpc_port}..."
 
-OP_NODE_SYNC=$(curl -s -X POST http://localhost:${OP_NODE_RPC_PORT} \
+OP_NODE_SYNC=$(curl -s -X POST http://localhost:${op_node_rpc_port} \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"optimism_syncStatus","params":[],"id":1}' 2>/dev/null)
 
 if [ $? -ne 0 ]; then
   echo -e "${RED}✗ Error: Cannot connect to Op-Node RPC${NC}"
-  echo "  Make sure Op-Node is running and accessible on port ${OP_NODE_RPC_PORT}"
+  echo "  Make sure Op-Node is running and accessible on port ${op_node_rpc_port}"
   exit 1
 fi
 
 # Check if result is null or error
 if echo "$OP_NODE_SYNC" | jq -e '.error' > /dev/null 2>&1; then
-  ERROR_MSG=$(echo $OP_NODE_SYNC | jq -r '.error.message')
+  ERROR_MSG=$(echo "$OP_NODE_SYNC" | jq -r '.error.message')
   echo -e "${RED}✗ Error from Op-Node: ${ERROR_MSG}${NC}"
 else
   # Parse sync status
-  UNSAFE_L2=$(echo $OP_NODE_SYNC | jq -r '.result.unsafe_l2.number')
-  SAFE_L2=$(echo $OP_NODE_SYNC | jq -r '.result.safe_l2.number')
-  FINALIZED_L2=$(echo $OP_NODE_SYNC | jq -r '.result.finalized_l2.number')
-  CURRENT_L1=$(echo $OP_NODE_SYNC | jq -r '.result.current_l1.number')
+  UNSAFE_L2=$(echo "$OP_NODE_SYNC" | jq -r '.result.unsafe_l2.number')
+  SAFE_L2=$(echo "$OP_NODE_SYNC" | jq -r '.result.safe_l2.number')
+  FINALIZED_L2=$(echo "$OP_NODE_SYNC" | jq -r '.result.finalized_l2.number')
+  CURRENT_L1=$(echo "$OP_NODE_SYNC" | jq -r '.result.current_l1.number')
 
   echo -e "${GREEN}✓ Op-Node is running${NC}"
   echo "  Unsafe L2 block:     ${UNSAFE_L2}"
@@ -126,14 +127,14 @@ fi
 echo ""
 echo -e "${BLUE}[Op-Node]${NC} Checking output root..."
 
-OUTPUT_ROOT=$(curl -s -X POST http://localhost:${OP_NODE_RPC_PORT} \
+OUTPUT_ROOT=$(curl -s -X POST http://localhost:${op_node_rpc_port} \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"optimism_outputAtBlock","params":["latest"],"id":1}' 2>/dev/null)
 
 if echo "$OUTPUT_ROOT" | jq -e '.result' > /dev/null 2>&1; then
-  OUTPUT_VERSION=$(echo $OUTPUT_ROOT | jq -r '.result.version')
-  OUTPUT_ROOT_HASH=$(echo $OUTPUT_ROOT | jq -r '.result.outputRoot')
-  BLOCK_REF=$(echo $OUTPUT_ROOT | jq -r '.result.blockRef.number')
+  OUTPUT_VERSION=$(echo "$OUTPUT_ROOT" | jq -r '.result.version')
+  OUTPUT_ROOT_HASH=$(echo "$OUTPUT_ROOT" | jq -r '.result.outputRoot')
+  BLOCK_REF=$(echo "$OUTPUT_ROOT" | jq -r '.result.blockRef.number')
 
   echo -e "${GREEN}✓ Output root available${NC}"
   echo "  Version: ${OUTPUT_VERSION}"
