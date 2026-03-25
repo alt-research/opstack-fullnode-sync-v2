@@ -37,12 +37,6 @@ services:
         condition: service_completed_successfully
     networks:
       - opstack-network
-    healthcheck:
-      test: ["CMD", "sh", "-c", "nc -z localhost 8545"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
 
   node:
     image: ${NODE_IMAGE:-us-docker.pkg.dev/oplabs-tools-artifacts/images/op-node:v1.16.7}
@@ -63,15 +57,9 @@ services:
     command: /entrypoint.sh
     depends_on:
       reth:
-        condition: service_healthy
+        condition: service_started
     networks:
       - opstack-network
-    healthcheck:
-      test: ["CMD", "sh", "-c", "nc -z localhost 9545"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
 
 volumes:
   reth-data:
