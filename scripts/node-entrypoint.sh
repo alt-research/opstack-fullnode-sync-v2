@@ -86,11 +86,6 @@ echo "Starting op-node"
 
 set -- op-node
 
-if [ -n "${OP_NODE_EXTRA_FLAGS:-}" ]; then
-  # shellcheck disable=SC2086
-  set -- "$@" ${OP_NODE_EXTRA_FLAGS}
-fi
-
 exec env \
   OP_NODE_DATADIR="/data" \
   OP_NODE_RPC_ADDR="${OP_NODE_RPC_ADDR:-0.0.0.0}" \

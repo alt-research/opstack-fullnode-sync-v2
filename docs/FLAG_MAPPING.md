@@ -71,7 +71,6 @@ In this repo:
 
 - Some of the envs above are exposed directly in `.env`
 - Some are currently set in `scripts/node-entrypoint.sh` for simplicity
-- For advanced cases, `OP_NODE_EXTRA_FLAGS` can still append raw extra flags
 
 Bootstrap helper variables:
 
