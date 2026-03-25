@@ -29,20 +29,11 @@ fi
 case "${RETH_CHAIN}" in
   /*|*.json)
     if [ ! -f "${RETH_CHAIN}" ]; then
-      if [ -z "${GENESIS_URL:-}" ]; then
-        echo "ERROR: GENESIS_URL is required when RETH_CHAIN points to a local genesis file"
-        exit 1
-      fi
-
-      mkdir -p "$(dirname "${RETH_CHAIN}")"
-      echo "Downloading genesis.json from ${GENESIS_URL}"
-      wget -O "${RETH_CHAIN}" "${GENESIS_URL}" || {
-        echo "ERROR: failed to download genesis.json"
-        exit 1
-      }
-    else
-      echo "Using existing genesis file at ${RETH_CHAIN}"
+      echo "ERROR: expected genesis.json at ${RETH_CHAIN}"
+      echo "Please ensure config-init downloaded it successfully."
+      exit 1
     fi
+    echo "Using existing genesis file at ${RETH_CHAIN}"
     ;;
   *)
     echo "Using superchain chain id ${RETH_CHAIN}"

@@ -31,20 +31,11 @@ if [ -n "${OP_NODE_NETWORK:-}" ]; then
   echo "Using superchain network ${OP_NODE_NETWORK}"
 elif [ -n "${OP_NODE_ROLLUP_CONFIG:-}" ]; then
   if [ ! -f "${OP_NODE_ROLLUP_CONFIG}" ]; then
-    if [ -z "${ROLLUP_CONFIG_URL:-}" ]; then
-      echo "ERROR: ROLLUP_CONFIG_URL is required when OP_NODE_ROLLUP_CONFIG points to a missing local file"
-      exit 1
-    fi
-
-    mkdir -p "$(dirname "${OP_NODE_ROLLUP_CONFIG}")"
-    echo "Downloading rollup.json from ${ROLLUP_CONFIG_URL}"
-    wget -O "${OP_NODE_ROLLUP_CONFIG}" "${ROLLUP_CONFIG_URL}" || {
-      echo "ERROR: failed to download rollup.json"
-      exit 1
-    }
-  else
-    echo "Using existing rollup config at ${OP_NODE_ROLLUP_CONFIG}"
+    echo "ERROR: expected rollup.json at ${OP_NODE_ROLLUP_CONFIG}"
+    echo "Please ensure config-init downloaded it successfully."
+    exit 1
   fi
+  echo "Using existing rollup config at ${OP_NODE_ROLLUP_CONFIG}"
 else
   echo "ERROR: set OP_NODE_NETWORK or OP_NODE_ROLLUP_CONFIG"
   exit 1
