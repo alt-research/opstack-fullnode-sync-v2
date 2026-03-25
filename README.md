@@ -54,6 +54,9 @@ docker compose up -d
 docker compose logs -f
 ```
 
+`docker compose` will start a small `config-init` container first to download
+`genesis.json` and `rollup.json` when the selected mode requires them.
+
 5. Verify sync.
 
 ```bash
@@ -147,10 +150,10 @@ OP_NODE_ALTDA_DA_SERVICE=true
 
 ## Automatic Behavior
 
-- If `RETH_CHAIN` points to a local json path and the file is missing, `reth-entrypoint.sh` downloads it from `GENESIS_URL`
+- `config-init` downloads `genesis.json` from `GENESIS_URL` when custom mode uses `/data/genesis.json`
 - `RETH_ROLLUP_SEQUENCER_HTTP` is required in this repo for fullnode mode
 - `RETH_BOOTNODES` is required in this repo for fullnode mode
-- If `OP_NODE_ROLLUP_CONFIG` points to a local path and the file is missing, `node-entrypoint.sh` downloads it from `ROLLUP_CONFIG_URL`
+- `config-init` downloads `rollup.json` from `ROLLUP_CONFIG_URL` when custom mode uses `/data/rollup.json`
 - `node-entrypoint.sh` validates one of the six supported mode combinations:
   `custom/superchain` x `beacon/altda/altda-service`
 - AltDA modes require `OP_NODE_ALTDA_ENABLED=true`

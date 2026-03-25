@@ -1,4 +1,19 @@
 services:
+  config-init:
+    image: alpine:3.20
+    container_name: opstack-config-init
+    restart: "no"
+    volumes:
+      - reth-data:/reth-data
+      - node-data:/node-data
+      - ./scripts/download-config.sh:/entrypoint.sh:ro
+    env_file:
+      - .env
+    entrypoint: /bin/sh
+    command: /entrypoint.sh
+    networks:
+      - opstack-network
+
   reth:
     image: ${RETH_IMAGE:-us-docker.pkg.dev/oplabs-tools-artifacts/images/op-reth:v1.11.0}
     container_name: opstack-reth
@@ -17,6 +32,9 @@ services:
       - .env
     entrypoint: /bin/sh
     command: /entrypoint.sh
+    depends_on:
+      config-init:
+        condition: service_completed_successfully
     networks:
       - opstack-network
     healthcheck:
