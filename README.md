@@ -49,7 +49,8 @@ If your email has not been registered yet, contact an AltLayer team member first
 
 6. Place the downloaded file in this repo as `.env`.
 
-7. Generate a JWT secret shared by reth and op-node.
+7. Generate a local `jwt.txt` file shared by reth and op-node.
+This repo does not include a sample JWT secret file.
 
 ```bash
 openssl rand -hex 32 > jwt.txt
