@@ -63,5 +63,5 @@ exec op-reth node \
   --discovery.port=30303 \
   --metrics=0.0.0.0:6060 \
   --rollup.sequencer-http="${RETH_ROLLUP_SEQUENCER_HTTP}" \
-  --bootnodes="${RETH_BOOTNODES}" \
+  --trusted-peers="${RETH_BOOTNODES}" \
   ${RETH_EXTRA_ARGS:-}
