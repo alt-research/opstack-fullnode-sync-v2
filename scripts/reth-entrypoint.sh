@@ -37,9 +37,6 @@ case "${RETH_CHAIN}" in
     ;;
   *)
     echo "Using superchain chain id ${RETH_CHAIN}"
-    if [ -n "${OP_NODE_NETWORK:-}" ]; then
-      echo "Op-node network is ${OP_NODE_NETWORK}"
-    fi
     ;;
 esac
 
