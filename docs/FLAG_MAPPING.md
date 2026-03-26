@@ -20,7 +20,7 @@ The following env variables are consumed by [scripts/reth-entrypoint.sh](../scri
 | `RETH_ROLLUP_SEQUENCER_HTTP` | `--rollup.sequencer-http` | Required in this repo for fullnode mode |
 | `RETH_BOOTNODES` | `--bootnodes` | Required in this repo for fullnode mode |
 | `RETH_VERBOSITY` | raw flag | Example: `-vvv` |
-| `RETH_EXTRA_ARGS` | raw flags | Appended verbatim. Use this as the platform-generated extension point for chain-specific optional reth flags such as flashblock args. |
+| `RETH_EXTRA_ARGS` | raw flags | Appended verbatim. Use this as the platform-generated extension point for network-specific optional reth flags such as flashblock args. |
 
 Bootstrap helper variables:
 
@@ -106,5 +106,5 @@ These values are currently set by the repo and do not need to live in `.env`:
 | `superchain-legacy-da` | `RETH_CHAIN=<reth-chain>`, `OP_NODE_NETWORK=<op-node-network>`, `OP_NODE_L1_BEACON_IGNORE=true`, `OP_NODE_ALTDA_ENABLED=true`, `OP_NODE_ALTDA_DA_SERVER` |
 | `superchain-generic-da` | `RETH_CHAIN=<reth-chain>`, `OP_NODE_NETWORK=<op-node-network>`, `OP_NODE_L1_BEACON_IGNORE=true`, `OP_NODE_ALTDA_ENABLED=true`, `OP_NODE_ALTDA_DA_SERVER`, `OP_NODE_ALTDA_DA_SERVICE=true` |
 
-`RETH_CHAIN` and `OP_NODE_NETWORK` are allowed to differ in superchain mode.
-Example: `RETH_CHAIN=arena-z`, `OP_NODE_NETWORK=arena-z-mainnet`.
+`RETH_CHAIN` and `OP_NODE_NETWORK` are allowed to differ in superchain mode because different clients may use different identifiers.
+Example: `RETH_CHAIN=your-reth-chain-id`, `OP_NODE_NETWORK=your-op-node-network`.
