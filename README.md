@@ -21,6 +21,9 @@ A single Docker Compose setup for `op-node + reth` fullnode sync.
 | `superchain-legacy-da` | superchain | generic AltDA | `examples/modes/superchain-legacy-da.env` |
 | `superchain-generic-da` | superchain | AltDA service | `examples/modes/superchain-generic-da.env` |
 
+The files under `examples/modes/*.env` are reference templates that describe the supported mode shapes only.
+They are not the final delivery config used to run a fullnode.
+
 The model is two-dimensional:
 
 - Chain source:
@@ -33,21 +36,26 @@ The model is two-dimensional:
 
 ## Quick Start
 
-1. Pick a mode template and copy it to `.env`.
+1. Open `https://wizard.altlayer.io/`.
 
-```bash
-cp examples/modes/custom-ethda.env .env
-```
+2. Sign in with the email address that was previously registered with AltLayer.
+If your email has not been registered yet, contact an AltLayer team member first.
 
-2. Generate a JWT secret shared by reth and op-node.
+3. Find your rollup in the dashboard.
+
+4. In the left sidebar, click `Run a Fullnode`.
+
+5. Click `Download .env` to download the generated environment file for that rollup.
+
+6. Place the downloaded file in this repo as `.env`.
+
+7. Generate a JWT secret shared by reth and op-node.
 
 ```bash
 openssl rand -hex 32 > jwt.txt
 ```
 
-3. Edit `.env` for your target network.
-
-4. Start the stack.
+8. Start the stack.
 
 ```bash
 docker compose up -d
@@ -57,7 +65,7 @@ docker compose logs -f
 `docker compose` will start a small `config-init` container first to download
 `genesis.json` and `rollup.json` when the selected mode requires them.
 
-5. Verify sync.
+9. Verify sync.
 
 ```bash
 ./scripts/check-sync.sh
@@ -169,7 +177,6 @@ It is not needed for normal fullnode RPC usage, and only exposes op-node admin R
 ## Reference
 
 - [Flag Mapping](docs/FLAG_MAPPING.md)
-- [.env.example](.env.example)
 
 ## Ports
 
