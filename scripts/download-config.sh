@@ -1,9 +1,6 @@
 #!/bin/sh
 set -eu
 
-: "${RETH_DATADIR:=/data}"
-: "${OP_NODE_DATADIR:=/data}"
-
 download_to() {
   url="$1"
   dest="$2"
@@ -20,25 +17,24 @@ download_to() {
 
 map_data_path() {
   container_path="$1"
-  container_root="$2"
-  volume_root="$3"
+  volume_root="$2"
 
   case "${container_path}" in
-    "${container_root}"/*)
-      printf '%s/%s\n' "${volume_root}" "${container_path#${container_root}/}"
+    /data/*)
+      printf '%s/%s\n' "${volume_root}" "${container_path#/data/}"
       ;;
-    "${container_root}")
+    /data)
       printf '%s\n' "${volume_root}"
       ;;
     *)
-      echo "ERROR: expected path under ${container_root}, got ${container_path}"
+      echo "ERROR: expected path under /data, got ${container_path}"
       return 1
       ;;
   esac
 }
 
 if [ -n "${RETH_CHAIN:-}" ]; then
-  reth_genesis_target="$(map_data_path "${RETH_CHAIN}" "${RETH_DATADIR}" /reth-data)"
+  reth_genesis_target="$(map_data_path "${RETH_CHAIN}" /reth-data)"
 elif [ -n "${GENESIS_URL:-}" ]; then
   reth_genesis_target="/reth-data/genesis.json"
 else
@@ -55,7 +51,7 @@ if [ -n "${reth_genesis_target}" ] && [ -n "${GENESIS_URL:-}" ]; then
 fi
 
 if [ -n "${OP_NODE_ROLLUP_CONFIG:-}" ]; then
-  op_node_rollup_target="$(map_data_path "${OP_NODE_ROLLUP_CONFIG}" "${OP_NODE_DATADIR}" /node-data)"
+  op_node_rollup_target="$(map_data_path "${OP_NODE_ROLLUP_CONFIG}" /node-data)"
 elif [ -n "${ROLLUP_CONFIG_URL:-}" ]; then
   op_node_rollup_target="/node-data/rollup.json"
 else

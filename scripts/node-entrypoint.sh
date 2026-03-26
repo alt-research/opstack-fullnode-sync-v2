@@ -1,8 +1,6 @@
 #!/bin/sh
 set -eu
 
-: "${OP_NODE_DATADIR:=/data}"
-
 is_true() {
   case "${1:-}" in
     1|true|TRUE|True|yes|YES|on|ON)
@@ -14,22 +12,10 @@ is_true() {
   esac
 }
 
-ensure_parent_dir() {
-  mkdir -p "$(dirname "$1")"
-}
-
-OP_NODE_P2P_PRIV_PATH="${OP_NODE_P2P_PRIV_PATH:-${OP_NODE_DATADIR}/p2p_priv.txt}"
-OP_NODE_SAFEDB_PATH="${OP_NODE_SAFEDB_PATH:-${OP_NODE_DATADIR}/safedb}"
-OP_NODE_P2P_DISCOVERY_PATH="${OP_NODE_P2P_DISCOVERY_PATH:-${OP_NODE_DATADIR}/p2p_discovery}"
-OP_NODE_P2P_PEERSTORE_PATH="${OP_NODE_P2P_PEERSTORE_PATH:-${OP_NODE_DATADIR}/p2p_peerstore}"
-OP_NODE_L2_ENGINE_AUTH="${OP_NODE_L2_ENGINE_AUTH:-${OP_NODE_DATADIR}/jwt.txt}"
-
-mkdir -p "${OP_NODE_DATADIR}"
-mkdir -p "${OP_NODE_P2P_DISCOVERY_PATH}"
-mkdir -p "${OP_NODE_P2P_PEERSTORE_PATH}"
-mkdir -p "${OP_NODE_SAFEDB_PATH}"
-ensure_parent_dir "${OP_NODE_P2P_PRIV_PATH}"
-ensure_parent_dir "${OP_NODE_L2_ENGINE_AUTH}"
+mkdir -p /data/p2p_discovery
+mkdir -p /data/p2p_peerstore
+mkdir -p /data/safedb
+mkdir -p /data
 
 if [ -n "${OP_NODE_NETWORK:-}" ] && { [ -n "${OP_NODE_ROLLUP_CONFIG:-}" ] || [ -n "${ROLLUP_CONFIG_URL:-}" ]; }; then
   echo "ERROR: OP_NODE_NETWORK is mutually exclusive with OP_NODE_ROLLUP_CONFIG and ROLLUP_CONFIG_URL"
@@ -37,7 +23,7 @@ if [ -n "${OP_NODE_NETWORK:-}" ] && { [ -n "${OP_NODE_ROLLUP_CONFIG:-}" ] || [ -
 fi
 
 if [ -z "${OP_NODE_NETWORK:-}" ] && [ -z "${OP_NODE_ROLLUP_CONFIG:-}" ] && [ -n "${ROLLUP_CONFIG_URL:-}" ]; then
-  OP_NODE_ROLLUP_CONFIG="${OP_NODE_DATADIR}/rollup.json"
+  OP_NODE_ROLLUP_CONFIG=/data/rollup.json
   export OP_NODE_ROLLUP_CONFIG
 fi
 
@@ -92,7 +78,7 @@ echo "Starting op-node"
 set -- op-node
 
 exec env \
-  OP_NODE_DATADIR="${OP_NODE_DATADIR}" \
+  OP_NODE_DATADIR="/data" \
   OP_NODE_RPC_ADDR="${OP_NODE_RPC_ADDR:-0.0.0.0}" \
   OP_NODE_RPC_PORT="${OP_NODE_RPC_PORT:-9545}" \
   OP_NODE_METRICS_ENABLED="${OP_NODE_METRICS_ENABLED:-true}" \
@@ -101,12 +87,12 @@ exec env \
   OP_NODE_P2P_LISTEN_IP="${OP_NODE_P2P_LISTEN_IP:-0.0.0.0}" \
   OP_NODE_P2P_LISTEN_TCP_PORT="${OP_NODE_P2P_LISTEN_TCP_PORT:-9003}" \
   OP_NODE_P2P_LISTEN_UDP_PORT="${OP_NODE_P2P_LISTEN_UDP_PORT:-9003}" \
-  OP_NODE_P2P_PRIV_PATH="${OP_NODE_P2P_PRIV_PATH}" \
-  OP_NODE_SAFEDB_PATH="${OP_NODE_SAFEDB_PATH}" \
-  OP_NODE_P2P_DISCOVERY_PATH="${OP_NODE_P2P_DISCOVERY_PATH}" \
-  OP_NODE_P2P_PEERSTORE_PATH="${OP_NODE_P2P_PEERSTORE_PATH}" \
+  OP_NODE_P2P_PRIV_PATH="/data/p2p_priv.txt" \
+  OP_NODE_SAFEDB_PATH="/data/safedb" \
+  OP_NODE_P2P_DISCOVERY_PATH="/data/p2p_discovery" \
+  OP_NODE_P2P_PEERSTORE_PATH="/data/p2p_peerstore" \
   OP_NODE_L2_ENGINE_RPC="${OP_NODE_L2_ENGINE_RPC:-http://reth:8551}" \
-  OP_NODE_L2_ENGINE_AUTH="${OP_NODE_L2_ENGINE_AUTH}" \
+  OP_NODE_L2_ENGINE_AUTH="${OP_NODE_L2_ENGINE_AUTH:-/data/jwt.txt}" \
   OP_NODE_L2_ENGINE_KIND="${OP_NODE_L2_ENGINE_KIND:-reth}" \
   OP_NODE_L1_ETH_RPC="${OP_NODE_L1_ETH_RPC}" \
   OP_NODE_L1_RPC_KIND="${OP_NODE_L1_RPC_KIND:-standard}" \
