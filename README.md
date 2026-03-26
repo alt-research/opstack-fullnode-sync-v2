@@ -45,7 +45,7 @@ cp examples/modes/custom-ethda.env .env
 openssl rand -hex 32 > jwt.txt
 ```
 
-3. Edit `.env` for your chain.
+3. Edit `.env` for your target network.
 
 4. Start the stack.
 
@@ -77,12 +77,12 @@ Reth itself launches from flags, so the compose file uses a small set of flag-al
 For superchain mode:
 
 ```bash
-RETH_CHAIN=arena-z
+RETH_CHAIN=your-reth-chain-id
 ```
 
 `RETH_CHAIN` is the chain identifier reth accepts for `--chain`.
 It must be set explicitly in superchain mode.
-It may differ from `OP_NODE_NETWORK`.
+It may differ from `OP_NODE_NETWORK` depending on how each client names the target network.
 
 For non-superchain mode:
 
@@ -91,14 +91,14 @@ RETH_CHAIN=/data/genesis.json
 GENESIS_URL=https://.../genesis.json
 ```
 
-For optional chain-specific reth flags:
+For optional network-specific reth flags:
 
 ```bash
 RETH_EXTRA_ARGS="--flashblocks-url=ws://xxx --flashblock-consensus"
 ```
 
 `RETH_EXTRA_ARGS` is the extension point for reth-only optional flags.
-Platform-generated `.env` should leave room for this field even if most chains keep it empty.
+Platform-generated `.env` should leave room for this field even if most networks keep it empty.
 
 ### Op-Node
 
@@ -118,11 +118,11 @@ The `.env` keeps native `OP_NODE_*` names for op-node settings, for example:
 For superchain mode:
 
 ```bash
-OP_NODE_NETWORK=arena-z-sepolia
+OP_NODE_NETWORK=your-op-node-network
 ```
 
 `OP_NODE_NETWORK` is the network name op-node accepts for `--network`.
-It may differ from `RETH_CHAIN`.
+It may differ from `RETH_CHAIN` depending on how each client names the target network.
 
 For non-superchain mode:
 
