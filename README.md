@@ -62,8 +62,10 @@ docker compose up -d
 docker compose logs -f
 ```
 
-`docker compose` will start a small `config-init` container first to download
-`genesis.json` and `rollup.json` when the selected mode requires them.
+`docker compose` will start a small `config-init` helper first.
+It downloads `genesis.json` and `rollup.json` only when the selected mode
+provides `GENESIS_URL` or `ROLLUP_CONFIG_URL`. In superchain mode it exits
+without downloading anything.
 
 9. Verify sync.
 
