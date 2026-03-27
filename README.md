@@ -53,7 +53,7 @@ If your email has not been registered yet, contact an AltLayer team member first
 This repo does not include a sample JWT secret file.
 
 ```bash
-openssl rand -hex 32 > jwt.txt
+openssl rand -hex 32 >jwt.txt
 ```
 
 8. Start the stack.
