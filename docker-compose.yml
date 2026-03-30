@@ -48,8 +48,8 @@ services:
       - "7300:7300"       # Op-node metrics
       - "9545:9545"       # Op-node RPC
     volumes:
-      - node-data:${OP_NODE_DATADIR:-/data}
-      - ./jwt.txt:${OP_NODE_DATADIR:-/data}/jwt.txt:ro
+      - node-data:/data
+      - ./jwt.txt:/data/jwt.txt:ro
       - ./scripts/node-entrypoint.sh:/entrypoint.sh:ro
     env_file:
       - .env

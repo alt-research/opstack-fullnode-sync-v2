@@ -78,7 +78,6 @@ echo "Starting op-node"
 set -- op-node
 
 exec env \
-  OP_NODE_DATADIR="/data" \
   OP_NODE_RPC_ADDR="${OP_NODE_RPC_ADDR:-0.0.0.0}" \
   OP_NODE_RPC_PORT="${OP_NODE_RPC_PORT:-9545}" \
   OP_NODE_METRICS_ENABLED="${OP_NODE_METRICS_ENABLED:-true}" \
