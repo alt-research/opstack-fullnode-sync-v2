@@ -2,7 +2,7 @@
 set -eu
 
 : "${RETH_DATADIR:=/data}"
-: "${OP_NODE_DATADIR:=/data}"
+NODE_DATADIR="/data"
 
 download_to() {
   url="$1"
@@ -93,7 +93,7 @@ if [ -n "${ROLLUP_CONFIG_URL:-}" ]; then
   fi
 
   if [ -n "${OP_NODE_ROLLUP_CONFIG:-}" ]; then
-    op_node_rollup_target="$(map_data_path "${OP_NODE_ROLLUP_CONFIG}" "${OP_NODE_DATADIR}" /node-data)"
+    op_node_rollup_target="$(map_data_path "${OP_NODE_ROLLUP_CONFIG}" "${NODE_DATADIR}" /node-data)"
   else
     op_node_rollup_target="/node-data/rollup.json"
   fi
